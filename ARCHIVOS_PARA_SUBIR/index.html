@@ -1,0 +1,170 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Operación EcoRescate - Juego Educativo</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body, html {
+      width: 100%;
+      height: 100%;
+      background: #19162c;
+      color: #ffffff;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+    header {
+      background: #231f3d;
+      padding: 10px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 2px solid #3b3564;
+      flex-shrink: 0;
+      height: 52px;
+    }
+    .titulo {
+      font-size: 1.15rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .badge {
+      background: #10b981;
+      color: white;
+      font-size: 0.75rem;
+      font-weight: 600;
+      padding: 3px 8px;
+      border-radius: 9999px;
+    }
+    .acciones {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+    .btn-descargar {
+      background: #6366f1;
+      color: white;
+      text-decoration: none;
+      font-size: 0.85rem;
+      font-weight: 600;
+      padding: 6px 14px;
+      border-radius: 6px;
+      transition: background 0.2s;
+    }
+    .btn-descargar:hover {
+      background: #4f46e5;
+    }
+    #game-container {
+      flex: 1;
+      width: 100%;
+      height: calc(100% - 52px);
+      position: relative;
+      background: #131124;
+      overflow: hidden;
+    }
+    #loading-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: #19162c;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      z-index: 100;
+      transition: opacity 0.4s ease;
+    }
+    .spinner {
+      width: 54px;
+      height: 54px;
+      border: 5px solid rgba(255, 255, 255, 0.1);
+      border-top-color: #10b981;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin-bottom: 20px;
+    }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    .loading-title {
+      font-size: 1.4rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+      color: #f3f4f6;
+    }
+    .loading-sub {
+      font-size: 0.95rem;
+      color: #9ca3af;
+      max-width: 440px;
+      text-align: center;
+      line-height: 1.4;
+    }
+  </style>
+  <script src="https://cjrtnc.leaningtech.com/latest/loader.js"></script>
+</head>
+<body>
+  <header>
+    <div class="titulo">
+      🌱 Operación EcoRescate
+      <span class="badge">WebAssembly</span>
+    </div>
+    <div class="acciones">
+      <a href="EcoRescate.jar" download class="btn-descargar">⬇ Descargar .JAR</a>
+    </div>
+  </header>
+
+  <div id="game-container">
+    <div id="loading-overlay">
+      <div class="spinner"></div>
+      <div class="loading-title">Cargando Operación EcoRescate...</div>
+      <div class="loading-sub">
+        Iniciando el entorno Java Swing en tu navegador mediante WebAssembly.
+        <br />Esto puede tardar unos segundos la primera vez.
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    async function iniciar() {
+      const overlay = document.getElementById('loading-overlay');
+      const container = document.getElementById('game-container');
+      try {
+        console.log('[CheerpJ] Inicializando cheerpjInit...');
+        await cheerpjInit({ version: 8 });
+        console.log('[CheerpJ] Creando display 1280x800...');
+        cheerpjCreateDisplay(1280, 800, container);
+        if (overlay) {
+          overlay.style.opacity = '0';
+          setTimeout(() => overlay.remove(), 400);
+        }
+        console.log('[CheerpJ] Ejecutando cheerpjRunJar...');
+        const code = await cheerpjRunJar('/app/EcoRescate.jar');
+        console.log('[CheerpJ] Exit code:', code);
+      } catch (err) {
+        console.error('Error al iniciar CheerpJ:', err);
+        if (overlay) {
+          overlay.innerHTML = `
+            <div style="text-align:center; padding: 20px;">
+              <h3 style="color:#ef4444; margin-bottom:10px;">No se pudo iniciar el emulador web</h3>
+              <p style="color:#9ca3af; margin-bottom:15px;">Tu navegador no soporta ciertas funciones de WebAssembly o hubo un error de red.</p>
+              <a href="EcoRescate.jar" download style="color:#6366f1; font-weight:bold;">Descarga el archivo EcoRescate.jar</a> para jugarlo directamente en tu computadora.
+            </div>
+          `;
+        }
+      }
+    }
+    iniciar();
+  </script>
+</body>
+</html>
